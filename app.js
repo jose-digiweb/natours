@@ -8,6 +8,7 @@ const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const hpp = require('hpp');
 const cookieParser = require('cookie-parser');
+const compression = require('compression');
 
 //==> REQUESTING OUR MODULES
 const globalErrorHandler = require('./controllers/errorController');
@@ -76,6 +77,9 @@ app.use(
     ],
   })
 );
+
+// COMPRESSING ALL THE TEXTS
+app.use(compression());
 
 //== ROUTES
 // VIEW ROUTES

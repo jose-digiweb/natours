@@ -60,8 +60,6 @@ module.exports = class Email {
         sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
         await sgMail.send(mailOptions);
-
-        console.log('Email sent!!!');
       } catch (err) {
         console.log('SendGrid Error:', err.response);
       }

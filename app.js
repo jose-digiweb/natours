@@ -9,6 +9,7 @@ const xss = require('xss-clean');
 const hpp = require('hpp');
 const cookieParser = require('cookie-parser');
 const compression = require('compression');
+const cors = require('cors');
 
 //==> REQUESTING OUR MODULES
 const globalErrorHandler = require('./controllers/errorController');
@@ -30,6 +31,10 @@ app.set('view engine', 'pug');
 app.set('views', path.join(__dirname, 'views'));
 
 //==> GLOBAL MIDDLEWARES
+// IMPLEMENTING CROSS ORIGIN API CALLS
+app.use(cors());
+app.options('*', cors());
+
 // SAVING STATIC FILES
 app.use(express.static(path.join(__dirname, 'public')));
 

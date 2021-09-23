@@ -233,7 +233,7 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
 
   // UPDATE changedPasswordAt PROPERTY FOR THE USER - in the model
   // LOG THE USER IN, SENDING THE JWT
-  createSendToken(user, 200, res);
+  createSendToken(user, req, 200, res);
 });
 
 exports.updatePassword = catchAsync(async (req, res, next) => {

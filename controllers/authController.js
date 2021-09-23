@@ -69,7 +69,7 @@ exports.login = catchAsync(async (req, res, next) => {
   }
 
   // SEND TOKEN TO THE CLIENT
-  createSendToken(user, req, 200, res);
+  createSendToken(user, 200, req, res);
 });
 
 exports.logout = (req, res, next) => {
@@ -233,7 +233,7 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
 
   // UPDATE changedPasswordAt PROPERTY FOR THE USER - in the model
   // LOG THE USER IN, SENDING THE JWT
-  createSendToken(user, req, 200, res);
+  createSendToken(user, 200, req, res);
 });
 
 exports.updatePassword = catchAsync(async (req, res, next) => {
@@ -251,5 +251,5 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
   await user.save(); // SAVING THE UPDATED PROPERTIES
 
   // LOG USER IN, SENDING THE JTW
-  createSendToken(user, req, 200, res);
+  createSendToken(user, 200, req, res);
 });

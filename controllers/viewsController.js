@@ -5,6 +5,16 @@ const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const factory = require('./handlerFactory');
 
+exports.alerts = (req, res, next) => {
+  const { alert } = req.query;
+
+  if (alert === 'booking')
+    // eslint-disable-next-line prettier/prettier
+    res.locals.alert = `The tour was successfully booked! Please check your email for confirmation. If your booking doesn't shows up here immediately, please come back later.`;
+
+  next();
+};
+
 exports.getOverview = catchAsync(async (req, res, next) => {
   // GET TOUR DATA FROM COLLECTION
   const tours = await Tour.find();

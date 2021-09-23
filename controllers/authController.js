@@ -11,18 +11,18 @@ const signToken = (id) =>
     expiresIn: process.env.JWT_EXPIRES_IN,
   });
 
-const createSendToken = (user, statusCode, res) => {
+const createSendToken = (user, statusCode, req, res) => {
   const token = signToken(user._id);
 
-  // DEFINING TH COOKIE OPTIONS
-  const cookieOptions = {
-    expires: new Date(Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000),
-    httpOnly: true,
-  };
-
   // SENDING THE TOKEN BY COOKIE
-  if (process.env.NODE_ENV === 'production') cookieOptions.secure = true;
-  res.cookie('jwt', token, cookieOptions);
+  res.cookie('jwt', token, {
+    // eslint-disable-next-line prettier/prettier
+    expires: new Date(
+      Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
+    ),
+    httpOnly: true,
+    secure: req.secure || req.header['x-forwarded-proto'] === 'https',
+  });
 
   // REMOVING THE PASSWORD FROM SHOWING IN THE OUTPUT
   user.password = undefined;
@@ -50,7 +50,7 @@ exports.signup = catchAsync(async (req, res, next) => {
 
   await new Email(newUser, url).sendWelcome();
 
-  createSendToken(newUser, 201, res);
+  createSendToken(newUser, 201, req, res);
 });
 
 exports.login = catchAsync(async (req, res, next) => {
@@ -69,7 +69,7 @@ exports.login = catchAsync(async (req, res, next) => {
   }
 
   // SEND TOKEN TO THE CLIENT
-  createSendToken(user, 200, res);
+  createSendToken(user, req, 200, res);
 });
 
 exports.logout = (req, res, next) => {
@@ -108,13 +108,18 @@ exports.protect = catchAsync(async (req, res, next) => {
   const currentUser = await User.findById(decoded.id);
 
   if (!currentUser) {
-    return next(new AppError('User not found, please enter a valid username and password!', 401));
+    return next(
+      new AppError('User not found, please enter a valid username and password!', 401)
+    );
   }
 
   // CHECK IF USER CHANGED HIS PASSWORD AFTER THE TOKEN WAS ISSUED
   if (currentUser.changedPasswordAfter(decoded.iat)) {
     return next(
-      new AppError('The password was recently changed. Please insert the correct one.', 401)
+      new AppError(
+        'The password was recently changed. Please insert the correct one.',
+        401
+      )
     );
   }
 
@@ -132,7 +137,10 @@ exports.isLoggedIn = async (req, res, next) => {
   try {
     if (req.cookies.jwt) {
       // VERIFy the TOKEN
-      const decoded = await promisify(jwt.verify)(req.cookies.jwt, process.env.JWT_SECRET);
+      const decoded = await promisify(jwt.verify)(
+        req.cookies.jwt,
+        process.env.JWT_SECRET
+      );
 
       // CHECK IF USER STILL EXISTS
       const currentUser = await User.findById(decoded.id);
@@ -198,7 +206,9 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
     // SAVING THE UPDATED PROPERTIES
     await user.save({ validateBeforeSave: false });
 
-    return next(new AppError('There was an error sending the email. Please try again later.', 500));
+    return next(
+      new AppError('There was an error sending the email. Please try again later.', 500)
+    );
   }
 });
 
@@ -241,5 +251,5 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
   await user.save(); // SAVING THE UPDATED PROPERTIES
 
   // LOG USER IN, SENDING THE JTW
-  createSendToken(user, 200, res);
+  createSendToken(user, req, 200, res);
 });

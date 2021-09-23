@@ -19,6 +19,7 @@ const userRouter = require('./routes/userRoutes');
 const reviewRouter = require('./routes/reviewRoutes');
 const viewRouter = require('./routes/viewRoutes');
 const bookingRouter = require('./routes/bookingRoutes');
+const { webhookCheckout } = require('./controllers/bookingController');
 
 ////////////////////////////////////////////
 ////==> STARTING CODING THE PROJECT <==////
@@ -58,6 +59,8 @@ const limiter = rateLimit({
 });
 
 app.use('/api', limiter);
+
+app.post('/webhook-checkout', express.raw({ type: 'application/json' }), webhookCheckout);
 
 // BODY PARSER, READING DATA FROM THE BODY INTO REQ.BODY
 app.use(express.json({ limit: '10kb' })); // limit: Not accept body larger than 10kb
